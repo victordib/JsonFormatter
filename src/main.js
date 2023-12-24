@@ -24,7 +24,7 @@ btnFormat.addEventListener("click", () => {
         addHistory(formatted);
     }
     catch (ex) {
-        alert("Ocorreu um erro! --> " + ex);
+        sendAlert("Ocorreu um erro! --> " + ex, "error");
     }
 });
 
@@ -37,13 +37,13 @@ btnMinify.addEventListener("click", () => {
         addHistory(minified);
     }
     catch (ex) {
-        alert("Ocorreu um erro! --> " + ex);
+        sendAlert("Ocorreu um erro! --> " + ex, "error");
     }
 });
 
 function copy(id) {
     navigator.clipboard.writeText(document.getElementById("#" + id).value);
-    alert("Copiado com sucesso!")
+    sendAlert("Copiado com sucesso!", "success")
 }
 
 function addHistory(formatted) {
@@ -53,4 +53,15 @@ function addHistory(formatted) {
 
     document.getElementById('history').insertAdjacentHTML('afterbegin', html);
     counter++;
+}
+
+
+function sendAlert(message, success){
+    Swal.fire({
+        position: "top",
+        icon: success,
+        title: message,
+        showConfirmButton: false,
+        timer: 3000
+      });
 }
