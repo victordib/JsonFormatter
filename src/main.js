@@ -2,18 +2,18 @@ const inputArea = document.querySelector(".large-area--input");
 const outputArea = document.querySelector(".large-area--output");
 const btnFormat = document.querySelector(".controls__button--format");
 const btnMinify = document.querySelector(".controls__button--minify");
-const btnCopy = document.getElementsByClassName(".copyButton")
-const historyhtml = "<div><label for='#counter' class='historyLabel'>#counter</label><textarea readonly class='large-area large-area--output' id='#counter'>output</textarea><button class='copyButton' onclick='copy(counter)'>Copiar</button></div>"
+const historyContainer = document.getElementById('history');
+
 let counter = 1;
 
-document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById('history').innerHtml = "";
+document.addEventListener("DOMContentLoaded", () => {
+    historyContainer.innerHTML = "";
 });
 
 
 btnFormat.addEventListener("click", () => {
-    if (inputArea.value == "") {
-        alert("Preencha o campo com o JSON");
+    if (!inputArea.value.trim()) {
+        sendAlert("Preencha o campo com o JSON", "warning");
         return;
     }
     try {
@@ -22,46 +22,56 @@ btnFormat.addEventListener("click", () => {
         outputArea.value = formatted;
 
         addHistory(formatted);
-    }
+    } 
     catch (ex) {
-        sendAlert("Ocorreu um erro! --> " + ex, "error");
+        sendAlert("JSON Inválido! --> " + ex.message, "error");
     }
 });
 
 btnMinify.addEventListener("click", () => {
+    if (!inputArea.value.trim()) return;
     try {
         const minified = JSON.stringify(JSON.parse(inputArea.value));
-
         outputArea.value = minified;
-
         addHistory(minified);
-    }
-    catch (ex) {
-        sendAlert("Ocorreu um erro! --> " + ex, "error");
+    } catch (ex) {
+        sendAlert("JSON Inválido! --> " + ex.message, "error");
     }
 });
 
-function copy(id) {
-    navigator.clipboard.writeText(document.getElementById("#" + id).value);
-    sendAlert("Copiado com sucesso!", "success")
+function copyToClipboard(id) {
+    const textToCopy = document.getElementById("hist-" + id).value;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        sendAlert("Copiado com sucesso!", "success");
+    });
 }
 
-function addHistory(formatted) {
-    let html = historyhtml
-    html = html.replaceAll("output", formatted);
-    html = html.replaceAll("counter", counter)
-
-    document.getElementById('history').insertAdjacentHTML('afterbegin', html);
+function addHistory(content) {
+    const historyItem = `
+        <div class="history-card">
+            <div class="history-header">
+                <label class="historyLabel">Item #${counter}</label>
+                <button class="copyButton" onclick="copyToClipboard(${counter}, this)">Copiar</button>
+            </div>
+            <div class="code-wrapper">
+                <textarea readonly class="large-area" id="hist-${counter}">${content}</textarea>
+            </div>
+        </div>
+    `;
+    historyContainer.insertAdjacentHTML('afterbegin', historyItem);
     counter++;
 }
 
-
-function sendAlert(message, success){
+function sendAlert(message, icon) {
     Swal.fire({
         position: "top",
-        icon: success,
+        icon: icon,
         title: message,
         showConfirmButton: false,
-        timer: 3000
-      });
+        timer: 2000,
+        toast: true,
+        background: '#2c2c2c',
+        color: '#ffffff',      
+        iconColor: '#6699ff'
+    });
 }
